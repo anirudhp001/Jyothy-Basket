@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your Jyothy Basket shopping cart. Review items, adjust quantities, and proceed to checkout.">
+    <title>Cart | Jyothy Basket</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/main.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Jyothy Basket</h1>
+        <nav id="nav-links" aria-label="Main navigation">
+            <!-- Injected by main.js -->
+        </nav>
+    </header>
+    <main>
+        <h2>Your Shopping Cart</h2>
+        <div class="cart-table-wrapper">
+            <table class="cart-table" id="cart-table-content">
+                <thead>
+                    <tr>
+                        <th scope="col">Product</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Injected via fetch -->
+                </tbody>
+            </table>
+        </div>
+        <div class="cart-summary" id="cart-summary">
+            <!-- Total and Checkout btn injected via fetch -->
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('CartServlet')
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.querySelector('#cart-table-content tbody');
+                    const summary = document.getElementById('cart-summary');
+                    
+                    if (!data.items || data.items.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: var(--space-2xl); color: var(--text-secondary);">
+                            <div style="font-size: 2.5rem; margin-bottom: var(--space-md);">🛒</div>
+                            <p style="font-size: 1.1rem; margin-bottom: var(--space-sm);">Your cart is empty</p>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">Start adding items to see them here.</p>
+                        </td></tr>`;
+                        summary.innerHTML = '<a href="index.html" class="btn" style="width:100%; text-align:center;">Browse Products</a>';
+                        return;
+                    }
+
+                    let rows = '';
+                    data.items.forEach(item => {
+                        rows += `
+                            <tr>
+                                <td style="font-weight: 600;">${item.name}</td>
+                                <td style="font-variant-numeric: tabular-nums; font-weight: 500;">₹${item.price.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td>
+                                    <form action="CartServlet" method="POST" style="margin:0;">
+                                        <input type="hidden" name="action" value="remove">
+                                        <input type="hidden" name="productId" value="${item.id}">
+                                        <input type="hidden" name="returnUrl" value="cart.html">
+                                        <button type="submit" class="btn-remove" aria-label="Remove ${item.name} from cart">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = rows;
+                    
+                    summary.innerHTML = `
+                        <h3>Total: <span style="color: var(--color-secondary); font-variant-numeric: tabular-nums;">₹${data.total.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></h3>
+                        <a href="checkout.html" class="btn btn-cta">Proceed to Checkout</a>
+                    `;
+                })
+                .catch(err => console.error('Error fetching cart: ', err));
+        });
+    </script>
+</body>
+</html>

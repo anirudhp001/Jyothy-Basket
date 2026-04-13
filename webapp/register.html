@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create a Jyothy Basket account to start shopping and track your orders.">
+    <title>Register | Jyothy Basket</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/main.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Jyothy Basket</h1>
+        <nav id="nav-links" aria-label="Main navigation">
+            <!-- Injected by main.js -->
+        </nav>
+    </header>
+    <main>
+        <div class="auth-form">
+            <h2 style="margin-top: 0; font-size: 1.75rem;">Create Account</h2>
+            <p style="color: var(--text-secondary); text-align: center; margin-bottom: var(--space-lg); font-size: 0.9rem;">Join Jyothy Basket today</p>
+            <div id="msg" role="alert" aria-live="polite"></div>
+            <form action="RegisterServlet" method="POST">
+                <label for="reg-username">Username</label>
+                <input type="text" id="reg-username" name="username" placeholder="Choose a username" required autocomplete="username">
+                
+                <label for="reg-password">Password</label>
+                <input type="password" id="reg-password" name="password" placeholder="Choose a password" required autocomplete="new-password">
+                
+                <button type="submit" class="btn">Register</button>
+            </form>
+            <p style="text-align: center; margin-top: var(--space-lg); color: var(--text-secondary); font-size: 0.9rem;">
+                Already have an account? <a href="login.html" style="color: var(--color-secondary); text-decoration: none; font-weight: 600;">Sign in here</a>
+            </p>
+        </div>
+    </main>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const msgDiv = document.getElementById('msg');
+        if (urlParams.get('error') === 'exists') {
+            msgDiv.innerHTML = '<div class="error-msg">Username already exists. Please choose another.</div>';
+        } else if (urlParams.get('error') === 'invalid') {
+            msgDiv.innerHTML = '<div class="error-msg">Please provide valid information.</div>';
+        }
+    </script>
+</body>
+</html>

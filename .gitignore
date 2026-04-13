@@ -1,0 +1,12 @@
+.env
+bin/
+apache-tomcat-*/
+tomcat.zip
+.project
+.classpath
+.settings/
+.vscode/
+firecrawl_output.*
+extract_styles.py
+firecrawl_scrape.py
+lib/

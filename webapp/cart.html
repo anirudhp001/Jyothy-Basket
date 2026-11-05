@@ -7,6 +7,14 @@
     <title>Cart | Jyothy Basket</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="js/main.js"></script>
+    <style>
+        .qty-controls { display: inline-flex; align-items: center; border: 1px solid var(--border-color); border-radius: var(--radius-sm); overflow: hidden; }
+        .qty-btn { background: var(--bg-elevated); border: none; color: var(--text-primary); width: 32px; height: 32px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .qty-btn:hover { background: var(--border-color); color: var(--accent); }
+        .qty-display { width: 44px; text-align: center; font-size: 0.9rem; font-weight: 600; color: var(--text-primary); background: transparent; border: none; }
+        .btn-remove { background: transparent; border: 1px solid rgba(239,68,68,0.3); color: #f87171; padding: 0.4rem 0.8rem; border-radius: var(--radius-sm); font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
+        .btn-remove:hover { background: rgba(239,68,68,0.15); border-color: #ef4444; }
+    </style>
 </head>
 <body>
     <header>
@@ -21,8 +29,8 @@
                     <tr>
                         <th scope="col">Product</th>
                         <th scope="col">Unit</th>
-                        <th scope="col">Qty</th>
-                        <th scope="col">Price</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Unit Price</th>
                         <th scope="col">Subtotal</th>
                         <th scope="col">Action</th>
                     </tr>
@@ -34,7 +42,7 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        function renderCart() {
             fetch('CartServlet')
                 .then(res => res.json())
                 .then(data => {
@@ -45,7 +53,7 @@
                         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--text-secondary);">
                             <div style="font-size:2.5rem;margin-bottom:1rem;">🛒</div>
                             <p style="font-size:1.1rem;margin-bottom:0.5rem;">Your cart is empty</p>
-                            <p style="font-size:0.85rem;color:var(--text-muted);">Add grocery items from the store.</p>
+                            <p style="font-size:0.85rem;color:var(--text-muted);">Explore our fresh grocery collection.</p>
                         </td></tr>`;
                         summary.innerHTML = '<a href="index.html" class="btn" style="width:100%;text-align:center;"><span>Browse Groceries</span></a>';
                         return;
@@ -57,24 +65,16 @@
                             <td style="font-weight:600;">${item.name}</td>
                             <td style="color:var(--text-secondary);font-size:0.85rem;">${item.unit}</td>
                             <td>
-                                <form action="CartServlet" method="POST" style="margin:0;display:inline-flex;align-items:center;gap:0.4rem;">
-                                    <input type="hidden" name="action" value="update">
-                                    <input type="hidden" name="productId" value="${item.id}">
-                                    <input type="hidden" name="returnUrl" value="cart.html">
-                                    <input type="number" name="quantity" value="${item.quantity}" min="1" max="${item.stock}"
-                                        style="width:55px;background:var(--bg-elevated);border:1px solid var(--border-color);color:var(--text-primary);padding:0.3rem;border-radius:4px;text-align:center;"
-                                        onchange="this.form.submit()">
-                                </form>
+                                <div class="qty-controls">
+                                    <button class="qty-btn" onclick="adjustQty(${item.id}, ${item.quantity - 1})" title="Decrease quantity">−</button>
+                                    <span class="qty-display">${item.quantity}</span>
+                                    <button class="qty-btn" onclick="adjustQty(${item.id}, ${item.quantity + 1})" title="Increase quantity" ${item.quantity >= item.stock ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : ''}>+</button>
+                                </div>
                             </td>
                             <td>₹${item.price.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
-                            <td style="font-weight:600;">₹${item.subtotal.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                            <td style="font-weight:600;color:var(--text-primary);">₹${item.subtotal.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
                             <td>
-                                <form action="CartServlet" method="POST" style="margin:0;">
-                                    <input type="hidden" name="action" value="remove">
-                                    <input type="hidden" name="productId" value="${item.id}">
-                                    <input type="hidden" name="returnUrl" value="cart.html">
-                                    <button type="submit" class="btn-remove" aria-label="Remove ${item.name}">Remove</button>
-                                </form>
+                                <button class="btn-remove" onclick="adjustQty(${item.id}, 0)">Remove</button>
                             </td>
                         </tr>`;
                     });
@@ -82,7 +82,7 @@
 
                     summary.innerHTML = `
                         <h3>Total (${data.itemCount} item${data.itemCount !== 1 ? 's' : ''}): 
-                            <span style="color:var(--accent);font-variant-numeric:tabular-nums;">
+                            <span style="color:var(--accent);font-variant-numeric:tabular-nums;margin-left:0.5rem;">
                                 ₹${data.total.toLocaleString('en-IN', {minimumFractionDigits:2})}
                             </span>
                         </h3>
@@ -90,7 +90,24 @@
                     `;
                 })
                 .catch(err => console.error('Cart error:', err));
-        });
+        }
+
+        function adjustQty(productId, qty) {
+            const action = qty <= 0 ? 'remove' : 'update';
+            const body = action === 'remove' 
+                ? `action=remove&productId=${productId}` 
+                : `action=update&productId=${productId}&quantity=${qty}`;
+
+            fetch('CartServlet', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: body
+            })
+            .then(() => renderCart())
+            .catch(err => console.error("Error updating cart:", err));
+        }
+
+        document.addEventListener('DOMContentLoaded', renderCart);
     </script>
 </body>
 </html>

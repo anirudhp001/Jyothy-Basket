@@ -21,6 +21,14 @@
         .out-of-stock { background: rgba(239,68,68,0.15); color: #f87171; }
 
         .unit-tag { font-size: 0.75rem; color: var(--text-muted); margin-left: 0.4rem; }
+
+        /* Toast notification */
+        .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--bg-surface); border: 1px solid var(--accent);
+            color: var(--text-primary); padding: 1rem 1.5rem; border-radius: var(--radius-md); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 0.75rem; z-index: 9999; transform: translateY(100px); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16,1,0.3,1); }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast a { color: var(--accent); font-weight: 700; text-decoration: underline; margin-left: 0.5rem; }
     </style>
 </head>
 <body>
@@ -32,19 +40,19 @@
     <main>
         <h2 id="collection-title" class="split-text">Fresh Groceries. Delivered Fast.</h2>
 
-        <div style="margin-bottom: 1rem;">
+        <div style="margin-bottom: 1.5rem;">
             <div class="search-container">
                 <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                <input type="text" id="search-input" class="search-input-tech" placeholder="Search groceries...">
+                <input type="text" id="search-input" class="search-input-tech" placeholder="Search fresh produce, dairy, staples...">
             </div>
         </div>
 
         <!-- Category Filter Pills -->
         <div class="category-pills" id="cat-pills">
-            <button class="pill active" onclick="filterCat('All', this)">All</button>
+            <button class="pill active" onclick="filterCat('All', this)">All Groceries</button>
             <button class="pill" onclick="filterCat('Fresh Produce', this)">🥦 Fresh Produce</button>
             <button class="pill" onclick="filterCat('Dairy & Bakery', this)">🥛 Dairy & Bakery</button>
             <button class="pill" onclick="filterCat('Pantry & Staples', this)">🌾 Pantry & Staples</button>
@@ -53,6 +61,13 @@
 
         <div id="product-container" class="grid-container"></div>
     </main>
+
+    <!-- Global Cart Toast -->
+    <div id="cart-toast" class="toast">
+        <span style="font-size:1.25rem;">🛒</span>
+        <span id="toast-text">Added item to cart</span>
+        <a href="cart.html">View Cart →</a>
+    </div>
 
     <footer>
         <p>Built with minimal aesthetics. Jyothy Basket &copy; 2026.</p>
@@ -67,17 +82,18 @@
             const container = document.getElementById('product-container');
             container.innerHTML = '';
             if (!products.length) {
-                container.innerHTML = '<div style="text-align:center;padding:4rem;color:var(--text-secondary);">No products found.</div>';
+                container.innerHTML = '<div style="text-align:center;padding:4rem;color:var(--text-secondary);grid-column:1/-1;">No grocery items found matching your criteria.</div>';
                 return;
             }
             products.forEach((p, i) => {
                 const stockClass = p.stock === 0 ? 'out-of-stock' : (p.stock < 5 ? 'low-stock' : 'in-stock');
-                const stockText = p.stock === 0 ? 'Out of Stock' : (p.stock < 5 ? `Only ${p.stock} left` : `In Stock`);
+                const stockText = p.stock === 0 ? 'Out of Stock' : (p.stock < 5 ? `Only ${p.stock} left` : `In Stock (${p.stock})`);
                 const div = document.createElement('div');
-                div.className = 'product-card';
+                div.className = 'product-card is-inview';
                 div.innerHTML = `
                     <div class="product-card-img-wrapper">
-                        <img src="${p.imageUrl}" alt="${p.name}" loading="${i < 6 ? 'eager' : 'lazy'}" width="280" height="200">
+                        <img src="${p.imageUrl}" alt="${p.name}" loading="${i < 6 ? 'eager' : 'lazy'}" width="280" height="200"
+                             onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=400';">
                     </div>
                     <div style="display:flex; flex-direction:column; flex-grow:1;">
                         <span class="product-card-category">${p.category}</span>
@@ -85,23 +101,49 @@
                         <p class="desc">${p.description}</p>
                         <div style="display:flex; align-items:baseline; gap:0.5rem; margin-top:auto;">
                             <p class="price" style="margin:0;">₹${p.price.toLocaleString('en-IN', {minimumFractionDigits: 2})}</p>
-                            <span class="unit-tag">${p.unit}</span>
+                            <span class="unit-tag">/ ${p.unit}</span>
                         </div>
-                        <div style="margin-top:0.4rem;">
+                        <div style="margin-top:0.5rem;">
                             <span class="stock-badge ${stockClass}">${stockText}</span>
                         </div>
                     </div>
-                    <form action="CartServlet" method="POST" style="margin-top:1rem;">
-                        <input type="hidden" name="action" value="add">
-                        <input type="hidden" name="productId" value="${p.id}">
-                        <input type="hidden" name="returnUrl" value="index.html">
-                        <button type="submit" class="btn" style="width: 100%;" ${p.stock === 0 ? 'disabled style="width:100%;opacity:0.4;cursor:not-allowed;"' : ''}>
+                    <div style="margin-top:1.25rem;">
+                        <button type="button" class="btn" style="width: 100%;" 
+                                onclick="addToCartAjax(${p.id}, '${p.name.replace(/'/g, "\\'")}', this)"
+                                ${p.stock === 0 ? 'disabled style="width:100%;opacity:0.35;cursor:not-allowed;"' : ''}>
                             <span>${p.stock === 0 ? 'Out of Stock' : '🛒 Add to Cart'}</span>
                         </button>
-                    </form>
+                    </div>
                 `;
                 container.appendChild(div);
             });
+        }
+
+        function addToCartAjax(productId, name, btn) {
+            if (btn) btn.disabled = true;
+            fetch('CartServlet', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `action=add&productId=${productId}&quantity=1`
+            })
+            .then(() => {
+                if (btn) btn.disabled = false;
+                showToast(`Added <strong>${name}</strong> to cart!`);
+            })
+            .catch(() => {
+                if (btn) btn.disabled = false;
+            });
+        }
+
+        let toastTimeout;
+        function showToast(msg) {
+            const toast = document.getElementById('cart-toast');
+            document.getElementById('toast-text').innerHTML = msg;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3500);
         }
 
         function filterCat(cat, btn) {
@@ -125,7 +167,7 @@
             }
             const title = document.getElementById('collection-title');
             if (currentSearch || currentCategory !== 'All') {
-                title.innerText = `${currentCategory !== 'All' ? currentCategory : 'Search'} (${filtered.length})`;
+                title.innerText = `${currentCategory !== 'All' ? currentCategory : 'Search'} (${filtered.length} items)`;
                 title.classList.remove('split-text');
             } else {
                 title.innerText = 'Fresh Groceries. Delivered Fast.';

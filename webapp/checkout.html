@@ -7,31 +7,93 @@
     <title>Checkout | Jyothy Basket</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="js/main.js"></script>
+    <style>
+        .checkout-layout { display: grid; grid-template-columns: 1fr 340px; gap: 2.5rem; max-width: 960px; margin: 2rem auto; padding: 0 1.5rem; }
+        .order-summary-box { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1.75rem; height: fit-content; }
+        .order-summary-box h3 { margin-top: 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
+        .summary-item { display: flex; justify-content: space-between; font-size: 0.88rem; margin: 0.6rem 0; }
+        .summary-total { display: flex; justify-content: space-between; font-size: 1.15rem; font-weight: 700; color: var(--accent); border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; }
+        @media (max-width: 768px) {
+            .checkout-layout { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
     <header>
         <h1>Jyothy Basket</h1>
-        <nav id="nav-links" aria-label="Main navigation">
-            <!-- Injected by main.js -->
-        </nav>
+        <nav id="nav-links" aria-label="Main navigation"></nav>
     </header>
     <main>
-        <div class="checkout-form">
-            <h2 style="margin-top: 0; font-size: 1.75rem;">Checkout</h2>
-            <p style="color: var(--text-secondary); text-align: center; margin-bottom: var(--space-lg); font-size: 0.9rem;">Complete your order securely</p>
-            <form action="CheckoutServlet" method="POST">
-                <label for="checkout-name">Full Name <span style="color: var(--color-danger);">*</span></label>
-                <input type="text" id="checkout-name" name="name" placeholder="Enter your full name" required autocomplete="name">
+        <div class="checkout-layout">
+            <div class="checkout-form" style="margin: 0; max-width: 100%;">
+                <h2 style="margin-top: 0; font-size: 1.75rem;">Delivery Details</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.9rem;">Where should we deliver your fresh groceries?</p>
                 
-                <label for="checkout-address">Shipping Address <span style="color: var(--color-danger);">*</span></label>
-                <textarea id="checkout-address" name="address" rows="3" placeholder="Door No, Street, City, State - PIN" required autocomplete="street-address"></textarea>
+                <form action="CheckoutServlet" method="POST" id="checkout-form">
+                    <label for="checkout-name">Recipient Full Name <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="checkout-name" name="name" placeholder="e.g. Anirudh" required autocomplete="name">
+                    
+                    <label for="checkout-phone">Phone Number <span style="color:#ef4444;">*</span></label>
+                    <input type="tel" id="checkout-phone" name="phone" placeholder="e.g. +91 98765 43210" required autocomplete="tel">
 
-                <label for="checkout-phone">Phone Number <span style="color: var(--color-danger);">*</span></label>
-                <input type="tel" id="checkout-phone" name="phone" placeholder="+91 98765 43210" required autocomplete="tel">
+                    <label for="checkout-address">Shipping Address <span style="color:#ef4444;">*</span></label>
+                    <textarea id="checkout-address" name="address" rows="3" placeholder="Door No, Street Name, Area, City, State - PIN" required autocomplete="street-address"></textarea>
+                    
+                    <button type="submit" class="btn btn-cta" style="width: 100%;"><span>🛒 Confirm & Place Order</span></button>
+                </form>
+            </div>
 
-                <button type="submit" class="btn btn-cta" style="width: 100%;">🛒 Place Order</button>
-            </form>
+            <!-- Real-time Order Summary Preview -->
+            <div class="order-summary-box" id="order-summary-box">
+                <h3>Order Summary</h3>
+                <div id="summary-items-list" style="color: var(--text-muted); font-size: 0.88rem;">Loading items...</div>
+                <div class="summary-total" id="summary-total-row" style="display:none;">
+                    <span>Total Amount</span>
+                    <span id="summary-total-val">₹0.00</span>
+                </div>
+            </div>
         </div>
     </main>
+
+    <script>
+        // Check session and auto-fill customer info if logged in
+        fetch('SessionServlet')
+            .then(r => r.json())
+            .then(data => {
+                if (data.loggedIn && data.username) {
+                    const nameField = document.getElementById('checkout-name');
+                    if (nameField && !nameField.value) nameField.value = data.username;
+                }
+            });
+
+        // Load items from active cart
+        fetch('CartServlet')
+            .then(r => r.json())
+            .then(cart => {
+                const list = document.getElementById('summary-items-list');
+                const totalRow = document.getElementById('summary-total-row');
+                const totalVal = document.getElementById('summary-total-val');
+
+                if (!cart.items || cart.items.length === 0) {
+                    list.innerHTML = '<p style="color:var(--text-secondary);margin:1rem 0;">Your cart is empty.</p><a href="index.html" class="btn" style="width:100%;text-align:center;"><span>Browse Products</span></a>';
+                    document.getElementById('checkout-form').style.display = 'none';
+                    return;
+                }
+
+                let html = '';
+                cart.items.forEach(item => {
+                    html += `
+                        <div class="summary-item">
+                            <span>${item.name} <strong style="color:var(--text-secondary);">× ${item.quantity}</strong></span>
+                            <span>₹${item.subtotal.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+                totalVal.textContent = '₹' + cart.total.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                totalRow.style.display = 'flex';
+            })
+            .catch(err => console.error("Error loading cart summary:", err));
+    </script>
 </body>
 </html>

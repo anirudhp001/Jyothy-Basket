@@ -6,44 +6,34 @@ public class ProductDatabase {
     private static List<Product> products = new ArrayList<>();
     
     static {
-        // ── Electronics ──
-        products.add(new Product(101, "Smartphone Pro Max", 69999.00, "Latest 5G flagship with 120Hz AMOLED display and pro-grade 200MP cameras.", "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=400", 4.8, "Electronics"));
-        products.add(new Product(102, "UltraHD Smart TV 55\"", 32999.00, "Immersive 4K experience with Dolby Vision and built-in streaming apps.", "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&q=80&w=400", 4.5, "Electronics"));
-        products.add(new Product(103, "Wireless Noise-Canceling Headphones", 14999.00, "Industry-leading ANC with 30-hour battery and Hi-Res Audio.", "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=400", 4.7, "Electronics"));
-        products.add(new Product(109, "Bluetooth Portable Speaker", 3499.00, "Waterproof 20W speaker with deep bass and 12-hour playtime.", "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&q=80&w=400", 4.4, "Electronics"));
-        products.add(new Product(110, "Wireless Gaming Mouse", 2499.00, "Ultra-fast 1ms response time with customizable RGB lighting.", "https://images.unsplash.com/photo-1527814050087-3793815479db?auto=format&fit=crop&q=80&w=400", 4.3, "Electronics"));
-        products.add(new Product(111, "Mechanical Gaming Keyboard", 4499.00, "Cherry MX switches with per-key RGB and aluminum frame.", "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&q=80&w=400", 4.6, "Electronics"));
-        products.add(new Product(112, "Smartwatch Fitness Tracker", 8999.00, "AMOLED display with SpO2, heart rate, GPS and 7-day battery.", "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&q=80&w=400", 4.5, "Electronics"));
-        products.add(new Product(113, "Laptop Ultrabook 14\"", 52999.00, "Intel i7, 16GB RAM, 512GB SSD in a sleek aluminum body.", "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=400", 4.7, "Electronics"));
-        products.add(new Product(114, "Tablet 10.5\" Display", 22999.00, "Crisp 2K display with stylus support and split-screen multitasking.", "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&q=80&w=400", 4.4, "Electronics"));
+        // ── Fresh Produce ──
+        products.add(new Product(201, "Organic Shimla Apples", 180.00, "Crisp, sweet, and naturally grown apples handpicked from Himalayan orchards.", "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&q=80&w=400", 4.8, "Fresh Produce", 25, "1 kg"));
+        products.add(new Product(202, "Fresh Cavendish Bananas", 55.00, "Naturally ripened, potassium-rich fresh yellow bananas.", "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&q=80&w=400", 4.7, "Fresh Produce", 40, "1 Dozen"));
+        products.add(new Product(203, "Farm Fresh Hybrid Tomatoes", 35.00, "Firm, juicy red tomatoes freshly harvested from local organic farms.", "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&q=80&w=400", 4.5, "Fresh Produce", 50, "1 kg"));
+        products.add(new Product(204, "Tender Baby Spinach (Palak)", 30.00, "Cleaned, pesticide-free baby spinach leaves packed with iron and vitamins.", "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&q=80&w=400", 4.6, "Fresh Produce", 30, "250 g"));
+        products.add(new Product(205, "Fresh Red Onions", 42.00, "Premium quality pungent onions essential for everyday Indian cooking.", "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&q=80&w=400", 4.4, "Fresh Produce", 45, "1 kg"));
+        products.add(new Product(206, "Fresh Green Bell Peppers", 60.00, "Crunchy and vibrant green capsicum rich in Vitamin C and antioxidants.", "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&q=80&w=400", 4.5, "Fresh Produce", 20, "500 g"));
 
-        // ── Fashion ──
-        products.add(new Product(105, "Mens Casual Sneakers", 2999.00, "Lightweight and breathable for daily wear with memory foam sole.", "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400", 4.1, "Fashion"));
-        products.add(new Product(106, "Womens Designer Handbag", 5999.00, "Elegant vegan leather bag with spacious compartments.", "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&q=80&w=400", 4.6, "Fashion"));
-        products.add(new Product(115, "Classic Aviator Sunglasses", 1299.00, "UV400 polarized lenses with lightweight metal frame.", "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&q=80&w=400", 4.2, "Fashion"));
-        products.add(new Product(116, "Mens Leather Wallet", 899.00, "Genuine leather bi-fold wallet with RFID protection.", "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&q=80&w=400", 4.3, "Fashion"));
-        products.add(new Product(117, "Womens Running Shoes", 3499.00, "Responsive cushioning with breathable knit upper.", "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&q=80&w=400", 4.5, "Fashion"));
+        // ── Dairy & Bakery ──
+        products.add(new Product(207, "Farm Fresh Whole Milk", 68.00, "Pasteurized, homogenized whole cow milk rich in calcium and natural proteins.", "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&q=80&w=400", 4.9, "Dairy & Bakery", 35, "1 L"));
+        products.add(new Product(208, "Organic Brown Eggs", 95.00, "Free-range farm fresh brown eggs high in Omega-3 and protein.", "https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&q=80&w=400", 4.8, "Dairy & Bakery", 30, "Pack of 6"));
+        products.add(new Product(209, "Artisanal Sourdough Whole Bread", 65.00, "Freshly baked preservative-free whole wheat bread with seeds.", "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=400", 4.7, "Dairy & Bakery", 15, "400 g"));
+        products.add(new Product(210, "Pure Salted Butter", 125.00, "Creamy, golden table butter churned from pure cow milk cream.", "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&q=80&w=400", 4.9, "Dairy & Bakery", 22, "200 g"));
+        products.add(new Product(211, "Greek Style Plain Curd / Yogurt", 75.00, "Thick, probiotic-rich natural yogurt for digestive health.", "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&q=80&w=400", 4.6, "Dairy & Bakery", 18, "400 g"));
 
-        // ── Furniture ──
-        products.add(new Product(104, "Ergonomic Office Chair", 11999.00, "Premium lumbar support and breathable mesh material.", "https://images.unsplash.com/photo-1580480055273-228ff5388ef8?auto=format&fit=crop&q=80&w=400", 4.3, "Furniture"));
-        products.add(new Product(118, "Minimalist Wooden Desk", 8999.00, "Solid pine wood desk with cable management and drawer.", "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&q=80&w=400", 4.4, "Furniture"));
+        // ── Pantry & Cooking Staples ──
+        products.add(new Product(212, "Royal Aged Basmati Rice", 480.00, "Long-grain aromatic aged basmati rice perfect for biryanis and pulao.", "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=400", 4.9, "Pantry & Staples", 25, "5 kg"));
+        products.add(new Product(213, "Cold-Pressed Extra Virgin Olive Oil", 649.00, "First cold-pressed Mediterranean olive oil for heart-healthy cooking.", "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&q=80&w=400", 4.8, "Pantry & Staples", 16, "1 L"));
+        products.add(new Product(214, "Organic Sharbati Whole Wheat Atta", 290.00, "Stone ground 100% whole grain wheat flour for extra soft rotis.", "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=400", 4.7, "Pantry & Staples", 20, "5 kg"));
+        products.add(new Product(215, "Traditional Bilona Desi Cow Ghee", 720.00, "Aromatic, golden Vedic ghee prepared using traditional wooden churns.", "https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&q=80&w=400", 4.9, "Pantry & Staples", 12, "500 ml"));
+        products.add(new Product(216, "Organic Toor Dal (Pigeon Pea)", 145.00, "Unpolished, nutrient-dense yellow lentils rich in dietary fiber and protein.", "https://images.unsplash.com/photo-1585994192701-f1a505c817ea?auto=format&fit=crop&q=80&w=400", 4.6, "Pantry & Staples", 30, "1 kg"));
+        products.add(new Product(217, "Natural Pink Himalayan Rock Salt", 85.00, "Pure, unrefined mineral-rich pink salt for healthy cooking.", "https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?auto=format&fit=crop&q=80&w=400", 4.7, "Pantry & Staples", 40, "1 kg"));
 
-        // ── Appliances ──
-        products.add(new Product(108, "Automatic Coffee Maker", 4999.00, "Brews a perfect cup every morning with a programmable timer.", "https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?auto=format&fit=crop&q=80&w=400", 4.4, "Appliances"));
-        products.add(new Product(119, "Air Purifier with HEPA Filter", 7499.00, "Removes 99.97% of allergens and pollutants silently.", "https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&q=80&w=400", 4.6, "Appliances"));
-        products.add(new Product(120, "Electric Kettle 1.5L", 1299.00, "Rapid boil stainless steel kettle with auto shut-off.", "https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&q=80&w=400", 4.2, "Appliances"));
-
-        // ── Grocery ──
-        products.add(new Product(107, "Organic Green Tea (100 Bags)", 349.00, "Pure, antioxidant-rich green tea from premium Darjeeling gardens.", "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&q=80&w=400", 4.9, "Grocery"));
-        products.add(new Product(121, "Cold Pressed Extra Virgin Olive Oil 1L", 599.00, "First cold pressed from Mediterranean olives.", "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&q=80&w=400", 4.7, "Grocery"));
-        products.add(new Product(122, "Premium Basmati Rice 5kg", 449.00, "Aged long-grain basmati rice with rich aroma.", "https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?auto=format&fit=crop&q=80&w=400", 4.8, "Grocery"));
-
-        // ── Books ──
-        products.add(new Product(123, "The Psychology of Money", 299.00, "Timeless lessons on wealth, greed, and happiness by Morgan Housel.", "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80&w=400", 4.8, "Books"));
-        products.add(new Product(124, "Atomic Habits", 349.00, "Proven framework for building good habits by James Clear.", "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=400", 4.9, "Books"));
-
-        // ── Sports ──
-        products.add(new Product(125, "Yoga Mat Premium 6mm", 999.00, "Non-slip eco-friendly TPE mat with carrying strap.", "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?auto=format&fit=crop&q=80&w=400", 4.5, "Sports"));
+        // ── Snacks & Beverages ──
+        products.add(new Product(218, "Darjeeling Pure Green Tea", 299.00, "Antioxidant-rich whole leaf green tea directly sourced from Darjeeling.", "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&q=80&w=400", 4.8, "Beverages & Snacks", 28, "100 Tea Bags"));
+        products.add(new Product(219, "Coorg Premium Roast Coffee Beans", 340.00, "Medium-dark roasted Arabica beans with hints of cocoa and caramel.", "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&q=80&w=400", 4.7, "Beverages & Snacks", 15, "250 g"));
+        products.add(new Product(220, "California Raw Almonds (Badam)", 420.00, "Crunchy, premium graded whole almonds packed with healthy fats.", "https://images.unsplash.com/photo-1508061252224-b045430b31ef?auto=format&fit=crop&q=80&w=400", 4.8, "Beverages & Snacks", 25, "500 g"));
+        products.add(new Product(221, "Raw Multi-Flora Forest Honey", 249.00, "100% pure unfiltered wild forest honey rich in natural pollen.", "https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&q=80&w=400", 4.9, "Beverages & Snacks", 18, "500 g"));
     }
     
     public static List<Product> getAllProducts() {
@@ -55,5 +45,23 @@ public class ProductDatabase {
             if (p.getId() == id) return p;
         }
         return null;
+    }
+
+    public static synchronized boolean updateProductStock(int id, int newStock) {
+        Product p = getProductById(id);
+        if (p != null) {
+            p.setStock(newStock);
+            return true;
+        }
+        return false;
+    }
+
+    public static synchronized boolean addProductStock(int id, int quantity) {
+        Product p = getProductById(id);
+        if (p != null) {
+            p.addStock(quantity);
+            return true;
+        }
+        return false;
     }
 }

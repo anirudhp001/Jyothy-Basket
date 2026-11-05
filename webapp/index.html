@@ -3,38 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Jyothy Basket — StringTune Design Edition">
-    <title>Jyothy Basket | Explore</title>
+    <meta name="description" content="Jyothy Basket — Fresh Grocery Delivery">
+    <title>Jyothy Basket | Grocery Store</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="js/main.js"></script>
+    <style>
+        .category-pills { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem; }
+        .pill { background: none; border: 1px solid var(--border-color); color: var(--text-secondary);
+            padding: 0.5rem 1.25rem; border-radius: 999px; font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 0.5px; cursor: pointer; font-family: var(--font-body); transition: all 0.3s; }
+        .pill:hover { border-color: var(--accent); color: var(--text-primary); }
+        .pill.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+        .stock-badge { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; font-weight: 600; margin-top: 0.25rem; display: inline-block; }
+        .in-stock { background: rgba(34,197,94,0.15); color: #4ade80; }
+        .low-stock { background: rgba(251,146,60,0.15); color: #fb923c; }
+        .out-of-stock { background: rgba(239,68,68,0.15); color: #f87171; }
+
+        .unit-tag { font-size: 0.75rem; color: var(--text-muted); margin-left: 0.4rem; }
+    </style>
 </head>
 <body>
     <header>
         <h1>Jyothy Basket</h1>
-        
-        <nav id="nav-links" aria-label="Main navigation">
-            <!-- Injected by main.js -->
-        </nav>
+        <nav id="nav-links" aria-label="Main navigation"></nav>
     </header>
-    
+
     <main>
-        <!-- The header gets the split-character animation just like StringTune -->
-        <h2 id="collection-title" class="split-text">Crafted Selections. Minimal Distractions.</h2>
-        
-        <div style="margin-bottom: 3rem;">
+        <h2 id="collection-title" class="split-text">Fresh Groceries. Delivered Fast.</h2>
+
+        <div style="margin-bottom: 1rem;">
             <div class="search-container">
                 <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
-                <label for="search-input" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Search</label>
-                <input type="text" id="search-input" class="search-input-tech" placeholder="Search products...">
+                <input type="text" id="search-input" class="search-input-tech" placeholder="Search groceries...">
             </div>
         </div>
-        
-        <div id="product-container" class="grid-container">
-            <!-- Items injected by fetch locally -->
+
+        <!-- Category Filter Pills -->
+        <div class="category-pills" id="cat-pills">
+            <button class="pill active" onclick="filterCat('All', this)">All</button>
+            <button class="pill" onclick="filterCat('Fresh Produce', this)">🥦 Fresh Produce</button>
+            <button class="pill" onclick="filterCat('Dairy & Bakery', this)">🥛 Dairy & Bakery</button>
+            <button class="pill" onclick="filterCat('Pantry & Staples', this)">🌾 Pantry & Staples</button>
+            <button class="pill" onclick="filterCat('Beverages & Snacks', this)">☕ Beverages & Snacks</button>
         </div>
+
+        <div id="product-container" class="grid-container"></div>
     </main>
 
     <footer>
@@ -43,14 +60,21 @@
 
     <script>
         let allProducts = [];
+        let currentCategory = 'All';
+        let currentSearch = '';
 
         function renderProducts(products) {
             const container = document.getElementById('product-container');
             container.innerHTML = '';
+            if (!products.length) {
+                container.innerHTML = '<div style="text-align:center;padding:4rem;color:var(--text-secondary);">No products found.</div>';
+                return;
+            }
             products.forEach((p, i) => {
+                const stockClass = p.stock === 0 ? 'out-of-stock' : (p.stock < 5 ? 'low-stock' : 'in-stock');
+                const stockText = p.stock === 0 ? 'Out of Stock' : (p.stock < 5 ? `Only ${p.stock} left` : `In Stock`);
                 const div = document.createElement('div');
                 div.className = 'product-card';
-                // Remove inline animation, our intersection observer handles it
                 div.innerHTML = `
                     <div class="product-card-img-wrapper">
                         <img src="${p.imageUrl}" alt="${p.name}" loading="${i < 6 ? 'eager' : 'lazy'}" width="280" height="200">
@@ -59,43 +83,67 @@
                         <span class="product-card-category">${p.category}</span>
                         <h3>${p.name}</h3>
                         <p class="desc">${p.description}</p>
-                        <p class="price">₹${p.price.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                        <div style="display:flex; align-items:baseline; gap:0.5rem; margin-top:auto;">
+                            <p class="price" style="margin:0;">₹${p.price.toLocaleString('en-IN', {minimumFractionDigits: 2})}</p>
+                            <span class="unit-tag">${p.unit}</span>
+                        </div>
+                        <div style="margin-top:0.4rem;">
+                            <span class="stock-badge ${stockClass}">${stockText}</span>
+                        </div>
                     </div>
-                    <form action="CartServlet" method="POST" style="margin-top:auto;">
+                    <form action="CartServlet" method="POST" style="margin-top:1rem;">
                         <input type="hidden" name="action" value="add">
                         <input type="hidden" name="productId" value="${p.id}">
                         <input type="hidden" name="returnUrl" value="index.html">
-                        <!-- New stringtune styled button -->
-                        <button type="submit" class="btn" style="width: 100%;"><span>Add to Cart</span></button>
+                        <button type="submit" class="btn" style="width: 100%;" ${p.stock === 0 ? 'disabled style="width:100%;opacity:0.4;cursor:not-allowed;"' : ''}>
+                            <span>${p.stock === 0 ? 'Out of Stock' : '🛒 Add to Cart'}</span>
+                        </button>
                     </form>
                 `;
                 container.appendChild(div);
             });
         }
 
+        function filterCat(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            let filtered = allProducts;
+            if (currentCategory && currentCategory !== 'All') {
+                filtered = filtered.filter(p => p.category === currentCategory);
+            }
+            if (currentSearch) {
+                filtered = filtered.filter(p =>
+                    p.name.toLowerCase().includes(currentSearch) ||
+                    p.category.toLowerCase().includes(currentSearch) ||
+                    p.description.toLowerCase().includes(currentSearch)
+                );
+            }
+            const title = document.getElementById('collection-title');
+            if (currentSearch || currentCategory !== 'All') {
+                title.innerText = `${currentCategory !== 'All' ? currentCategory : 'Search'} (${filtered.length})`;
+                title.classList.remove('split-text');
+            } else {
+                title.innerText = 'Fresh Groceries. Delivered Fast.';
+            }
+            renderProducts(filtered);
+        }
+
         fetch('ProductServlet')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(products => {
                 allProducts = products;
                 renderProducts(products);
             })
-            .catch(err => console.error("Error fetching products: ", err));
+            .catch(err => console.error("Error fetching products:", err));
 
         document.getElementById('search-input').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(searchTerm) || p.category.toLowerCase().includes(searchTerm));
-            
-            // Because split-text removes raw text, we replace only if needed
-            const collectionTitle = document.getElementById('collection-title');
-            if (searchTerm) {
-                collectionTitle.innerText = `Search Results (${filtered.length})`;
-                collectionTitle.classList.remove('split-text');
-            } else {
-                collectionTitle.innerText = 'Crafted Selections. Minimal Distractions.';
-                // We'd reinstall split-text animation logic here, but for simplicity we keep it static after search
-            }
-            
-            renderProducts(filtered);
+            currentSearch = e.target.value.toLowerCase();
+            applyFilters();
         });
     </script>
 </body>

@@ -24,9 +24,12 @@
                 <input type="text" id="checkout-name" name="name" placeholder="Enter your full name" required autocomplete="name">
                 
                 <label for="checkout-address">Shipping Address <span style="color: var(--color-danger);">*</span></label>
-                <textarea id="checkout-address" name="address" rows="4" placeholder="Enter your full shipping address" required autocomplete="street-address"></textarea>
-                
-                <button type="submit" class="btn btn-cta" style="width: 100%;">Place Order Securely</button>
+                <textarea id="checkout-address" name="address" rows="3" placeholder="Door No, Street, City, State - PIN" required autocomplete="street-address"></textarea>
+
+                <label for="checkout-phone">Phone Number <span style="color: var(--color-danger);">*</span></label>
+                <input type="tel" id="checkout-phone" name="phone" placeholder="+91 98765 43210" required autocomplete="tel">
+
+                <button type="submit" class="btn btn-cta" style="width: 100%;">🛒 Place Order</button>
             </form>
         </div>
     </main>

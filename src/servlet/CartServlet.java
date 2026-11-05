@@ -1,8 +1,10 @@
 package servlet;
 
 import model.Cart;
+import model.CartItem;
 import model.Product;
 import model.ProductDatabase;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -19,31 +21,37 @@ public class CartServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
-        
+
         HttpSession session = request.getSession();
         Cart cart = (Cart) session.getAttribute("cart");
         if (cart == null) {
             cart = new Cart();
             session.setAttribute("cart", cart);
         }
-        
-        // Manual JSON generation for the active cart
+
         StringBuilder json = new StringBuilder("{");
         json.append("\"total\":").append(cart.getTotal()).append(",");
+        json.append("\"itemCount\":").append(cart.getTotalItemCount()).append(",");
         json.append("\"items\":[");
-        
-        List<Product> items = cart.getItems();
+
+        List<CartItem> items = cart.getItems();
         for (int i = 0; i < items.size(); i++) {
-            Product p = items.get(i);
+            CartItem ci = items.get(i);
+            Product p = ci.getProduct();
             json.append("{")
                 .append("\"id\":").append(p.getId()).append(",")
-                .append("\"name\":\"").append(p.getName()).append("\",")
-                .append("\"price\":").append(p.getPrice())
+                .append("\"name\":\"").append(p.getName().replace("\"", "\\\"")).append("\",")
+                .append("\"price\":").append(p.getPrice()).append(",")
+                .append("\"unit\":\"").append(p.getUnit()).append("\",")
+                .append("\"imageUrl\":\"").append(p.getImageUrl()).append("\",")
+                .append("\"stock\":").append(p.getStock()).append(",")
+                .append("\"quantity\":").append(ci.getQuantity()).append(",")
+                .append("\"subtotal\":").append(ci.getSubtotal())
                 .append("}");
             if (i < items.size() - 1) json.append(",");
         }
         json.append("]}");
-        
+
         out.print(json.toString());
         out.flush();
     }
@@ -52,28 +60,34 @@ public class CartServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         String productIdStr = request.getParameter("productId");
+        String quantityStr = request.getParameter("quantity");
         String returnUrl = request.getParameter("returnUrl");
-        
+
         if (action != null && productIdStr != null) {
-            int productId = Integer.parseInt(productIdStr);
-            HttpSession session = request.getSession();
-            Cart cart = (Cart) session.getAttribute("cart");
-            
-            if (cart == null) {
-                cart = new Cart();
-                session.setAttribute("cart", cart);
-            }
-            
-            if (action.equals("add")) {
-                Product p = ProductDatabase.getProductById(productId);
-                if (p != null) {
-                    cart.addItem(p);
+            try {
+                int productId = Integer.parseInt(productIdStr);
+                int qty = (quantityStr != null && !quantityStr.isEmpty()) ? Integer.parseInt(quantityStr) : 1;
+
+                HttpSession session = request.getSession();
+                Cart cart = (Cart) session.getAttribute("cart");
+                if (cart == null) {
+                    cart = new Cart();
+                    session.setAttribute("cart", cart);
                 }
-            } else if (action.equals("remove")) {
-                cart.removeItem(productId);
-            }
+
+                if ("add".equalsIgnoreCase(action)) {
+                    Product p = ProductDatabase.getProductById(productId);
+                    if (p != null) {
+                        cart.addItem(p, qty);
+                    }
+                } else if ("remove".equalsIgnoreCase(action)) {
+                    cart.removeItem(productId);
+                } else if ("update".equalsIgnoreCase(action)) {
+                    cart.updateQuantity(productId, qty);
+                }
+            } catch (NumberFormatException ignored) {}
         }
-        
+
         if (returnUrl != null && !returnUrl.isEmpty()) {
             response.sendRedirect(returnUrl);
         } else {

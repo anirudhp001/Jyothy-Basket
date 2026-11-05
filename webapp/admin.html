@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Jyothy Basket</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/main.js"></script>
+    <style>
+        .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        .admin-header { margin-bottom: 2rem; }
+        .admin-header h2 { font-size: 2rem; letter-spacing: -1px; margin: 0 0 0.5rem; }
+        .admin-header p { color: var(--text-secondary); margin: 0; }
+
+        /* Stats Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+        .stat-card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+            padding: 1.5rem; text-align: center; }
+        .stat-card .stat-number { font-size: 2.2rem; font-weight: 700; font-family: var(--font-heading); color: var(--accent); }
+        .stat-card .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-top: 0.25rem; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0; }
+        .tab-btn { background: none; border: none; color: var(--text-secondary); padding: 0.75rem 1.5rem;
+            font-family: var(--font-heading); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.3s; }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-btn:hover { color: var(--text-primary); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Table */
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        .admin-table th { text-align: left; color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;
+            letter-spacing: 1px; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-weight: 500; }
+        .admin-table td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+        .admin-table tr:hover td { background: var(--bg-elevated); }
+
+        /* Status Selector */
+        .status-select { background: var(--bg-elevated); border: 1px solid var(--border-color); color: var(--text-primary);
+            padding: 0.4rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; cursor: pointer; }
+        .update-btn { background: var(--accent); color: #000; border: none; padding: 0.4rem 0.9rem;
+            border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 700; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 0.5px; transition: opacity 0.2s; }
+        .update-btn:hover { opacity: 0.8; }
+        .update-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Inventory stock input */
+        .stock-input { width: 70px; background: var(--bg-elevated); border: 1px solid var(--border-color);
+            color: var(--text-primary); padding: 0.4rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.85rem; text-align: center; }
+        .stock-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+        .stock-ok { background: rgba(34,197,94,0.15); color: #4ade80; }
+        .stock-low { background: rgba(251,146,60,0.15); color: #fb923c; }
+        .stock-out { background: rgba(239,68,68,0.15); color: #f87171; }
+
+        /* Status pills */
+        .status-pill { display: inline-flex; align-items: center; padding: 0.25rem 0.65rem;
+            border-radius: 999px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .s-placed { background: rgba(229,255,0,0.1); color: var(--accent); }
+        .s-processing { background: rgba(59,130,246,0.1); color: #60a5fa; }
+        .s-outfordelivery { background: rgba(251,146,60,0.1); color: #fb923c; }
+        .s-delivered { background: rgba(34,197,94,0.1); color: #4ade80; }
+        .s-cancelled { background: rgba(239,68,68,0.1); color: #f87171; }
+
+        .success-msg { color: #4ade80; font-size: 0.75rem; margin-left: 0.5rem; }
+        .access-denied { text-align: center; padding: 5rem 2rem; }
+        .access-denied .icon { font-size: 4rem; margin-bottom: 1.5rem; opacity: 0.3; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Jyothy Basket</h1>
+        <nav id="nav-links"></nav>
+    </header>
+
+    <main>
+        <div class="admin-container" id="admin-content">
+            <div class="access-denied"><div class="icon">🔒</div><p style="color:var(--text-secondary);">Loading...</p></div>
+        </div>
+    </main>
+
+    <script>
+        // Check session and role first
+        fetch('SessionServlet')
+            .then(r => r.json())
+            .then(session => {
+                const container = document.getElementById('admin-content');
+                if (!session.loggedIn || session.role !== 'ADMIN') {
+                    container.innerHTML = `<div class="access-denied">
+                        <div class="icon">🔒</div>
+                        <h2 style="color:var(--text-primary);">Admin Access Only</h2>
+                        <p style="color:var(--text-secondary);">You need admin credentials to access this panel.</p>
+                        <a href="login.html" class="btn" style="margin-top:1.5rem;"><span>Sign In as Admin</span></a>
+                    </div>`;
+                    return;
+                }
+                renderAdminPanel();
+            });
+
+        function renderAdminPanel() {
+            const container = document.getElementById('admin-content');
+            container.innerHTML = `
+                <div class="admin-header">
+                    <h2>Admin Panel</h2>
+                    <p>Manage orders, inventory, and customers</p>
+                </div>
+                <div class="stats-grid" id="stats-grid"><div style="color:var(--text-muted);font-size:0.9rem;">Loading stats...</div></div>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('orders')">📋 Orders</button>
+                    <button class="tab-btn" onclick="switchTab('inventory')">📦 Inventory</button>
+                    <button class="tab-btn" onclick="switchTab('customers')">👥 Customers</button>
+                </div>
+                <div id="tab-orders" class="tab-panel active"><div style="color:var(--text-muted);">Loading...</div></div>
+                <div id="tab-inventory" class="tab-panel"><div style="color:var(--text-muted);">Loading...</div></div>
+                <div id="tab-customers" class="tab-panel"><div style="color:var(--text-muted);">Loading...</div></div>
+            `;
+            loadStats();
+            loadOrders();
+            loadInventory();
+            loadCustomers();
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach((b, i) => {
+                const names = ['orders', 'inventory', 'customers'];
+                b.classList.toggle('active', names[i] === tab);
+            });
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        function loadStats() {
+            fetch('AdminServlet?action=summary')
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('stats-grid').innerHTML = `
+                        <div class="stat-card"><div class="stat-number">${d.totalOrders}</div><div class="stat-label">Total Orders</div></div>
+                        <div class="stat-card"><div class="stat-number">${d.pendingOrders}</div><div class="stat-label">Pending Orders</div></div>
+                        <div class="stat-card"><div class="stat-number">${d.totalCustomers}</div><div class="stat-label">Customers</div></div>
+                        <div class="stat-card"><div class="stat-number">₹${Number(d.totalRevenue).toLocaleString('en-IN',{maximumFractionDigits:0})}</div><div class="stat-label">Revenue</div></div>
+                        <div class="stat-card"><div class="stat-number" style="color:${d.outOfStockProducts>0?'#f87171':'var(--accent)'};">${d.outOfStockProducts}</div><div class="stat-label">Out of Stock</div></div>
+                        <div class="stat-card"><div class="stat-number" style="color:#fb923c;">${d.lowStockProducts}</div><div class="stat-label">Low Stock</div></div>
+                    `;
+                });
+        }
+
+        function statusClass(s) {
+            const m = {'Order Placed':'placed','Processing':'processing','Out for Delivery':'outfordelivery','Delivered':'delivered','Cancelled':'cancelled'};
+            return 's-' + (m[s] || 'placed');
+        }
+
+        function loadOrders() {
+            fetch('AdminServlet?action=orders')
+                .then(r => r.json())
+                .then(orders => {
+                    if (!orders.length) { document.getElementById('tab-orders').innerHTML = '<p style="color:var(--text-secondary);padding:2rem;">No orders yet.</p>'; return; }
+                    let html = `<table class="admin-table"><thead><tr>
+                        <th>Order ID</th><th>Customer</th><th>Date</th><th>Total</th><th>Items</th><th>Status</th><th>Update</th>
+                    </tr></thead><tbody>`;
+                    orders.forEach(o => {
+                        html += `<tr>
+                            <td><a href="track-order.html?orderId=${o.orderId}" style="color:var(--accent);font-family:monospace;">${o.orderId}</a></td>
+                            <td>${o.customerUsername}</td>
+                            <td style="color:var(--text-secondary);">${o.orderDate}</td>
+                            <td>₹${o.totalAmount.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                            <td style="color:var(--text-secondary);">${o.itemCount}</td>
+                            <td><span class="status-pill ${statusClass(o.status)}">${o.status}</span></td>
+                            <td>
+                                <select class="status-select" id="sel-${o.orderId}">
+                                    <option ${o.status==='Order Placed'?'selected':''}>Order Placed</option>
+                                    <option ${o.status==='Processing'?'selected':''}>Processing</option>
+                                    <option ${o.status==='Out for Delivery'?'selected':''}>Out for Delivery</option>
+                                    <option ${o.status==='Delivered'?'selected':''}>Delivered</option>
+                                    <option ${o.status==='Cancelled'?'selected':''}>Cancelled</option>
+                                </select>
+                                <button class="update-btn" onclick="updateStatus('${o.orderId}')">Update</button>
+                                <span id="msg-${o.orderId}" class="success-msg"></span>
+                            </td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    document.getElementById('tab-orders').innerHTML = html;
+                });
+        }
+
+        function updateStatus(orderId) {
+            const status = document.getElementById('sel-' + orderId).value;
+            const btn = event.target;
+            btn.disabled = true;
+            fetch('AdminServlet', { method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'},
+                body: `action=updateStatus&orderId=${encodeURIComponent(orderId)}&status=${encodeURIComponent(status)}` })
+                .then(r => r.json())
+                .then(d => {
+                    btn.disabled = false;
+                    const msg = document.getElementById('msg-' + orderId);
+                    msg.textContent = d.success ? '✓ Updated' : '✗ Failed';
+                    if (d.success) loadStats();
+                    setTimeout(() => { msg.textContent = ''; }, 3000);
+                });
+        }
+
+        function loadInventory() {
+            fetch('AdminServlet?action=inventory')
+                .then(r => r.json())
+                .then(products => {
+                    let html = `<table class="admin-table"><thead><tr>
+                        <th>Product</th><th>Category</th><th>Unit</th><th>Price</th><th>Stock</th><th>Restock (+qty)</th>
+                    </tr></thead><tbody>`;
+                    products.forEach(p => {
+                        const badgeCls = p.stock === 0 ? 'stock-out' : (p.stock < 5 ? 'stock-low' : 'stock-ok');
+                        const badgeTxt = p.stock === 0 ? 'Out of Stock' : (p.stock < 5 ? 'Low: ' + p.stock : p.stock + ' units');
+                        html += `<tr>
+                            <td>${p.name}</td>
+                            <td style="color:var(--text-secondary);">${p.category}</td>
+                            <td style="color:var(--text-secondary);">${p.unit}</td>
+                            <td>₹${p.price.toFixed(2)}</td>
+                            <td><span class="stock-badge ${badgeCls}" id="badge-${p.id}">${badgeTxt}</span></td>
+                            <td style="display:flex; align-items:center; gap:0.5rem;">
+                                <input type="number" class="stock-input" id="add-${p.id}" min="1" value="10" />
+                                <button class="update-btn" onclick="addStock(${p.id})">Restock</button>
+                                <span id="stockmsg-${p.id}" class="success-msg"></span>
+                            </td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    document.getElementById('tab-inventory').innerHTML = html;
+                });
+        }
+
+        function addStock(productId) {
+            const qty = parseInt(document.getElementById('add-' + productId).value);
+            if (!qty || qty < 1) return;
+            fetch('AdminServlet', { method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'},
+                body: `action=addStock&productId=${productId}&quantity=${qty}` })
+                .then(r => r.json())
+                .then(d => {
+                    const msg = document.getElementById('stockmsg-' + productId);
+                    if (d.success) {
+                        msg.textContent = '✓ Stock: ' + d.newStock;
+                        const badge = document.getElementById('badge-' + productId);
+                        if (badge) {
+                            const n = d.newStock;
+                            badge.className = 'stock-badge ' + (n === 0 ? 'stock-out' : (n < 5 ? 'stock-low' : 'stock-ok'));
+                            badge.textContent = n === 0 ? 'Out of Stock' : (n < 5 ? 'Low: ' + n : n + ' units');
+                        }
+                        loadStats();
+                    } else {
+                        msg.textContent = '✗ Failed';
+                    }
+                    setTimeout(() => { msg.textContent = ''; }, 3000);
+                });
+        }
+
+        function loadCustomers() {
+            fetch('AdminServlet?action=customers')
+                .then(r => r.json())
+                .then(customers => {
+                    let html = `<table class="admin-table"><thead><tr>
+                        <th>Username</th><th>Email</th><th>Phone</th><th>Role</th><th>Registered</th><th>Orders</th>
+                    </tr></thead><tbody>`;
+                    customers.forEach(c => {
+                        const roleCls = c.role === 'ADMIN' ? 'color:#fb923c;font-weight:700;' : 'color:var(--text-secondary);';
+                        html += `<tr>
+                            <td style="font-weight:600;">${c.username}</td>
+                            <td style="color:var(--text-secondary);">${c.email}</td>
+                            <td style="color:var(--text-secondary);">${c.phone}</td>
+                            <td><span style="${roleCls}">${c.role}</span></td>
+                            <td style="color:var(--text-secondary);">${c.registeredDate}</td>
+                            <td style="color:var(--accent); font-weight:700;">${c.totalOrders}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    document.getElementById('tab-customers').innerHTML = html;
+                });
+        }
+    </script>
+</body>
+</html>

@@ -17,12 +17,19 @@ public class ProductServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         
+        String categoryParam = request.getParameter("category");
         List<Product> products = ProductDatabase.getAllProducts();
         
-        // Manual JSON generation to avoid third-party libraries and keep it strictly core Java
         StringBuilder json = new StringBuilder("[");
+        int count = 0;
         for (int i = 0; i < products.size(); i++) {
             Product p = products.get(i);
+            if (categoryParam != null && !categoryParam.isEmpty() && !"All".equalsIgnoreCase(categoryParam)) {
+                if (!p.getCategory().equalsIgnoreCase(categoryParam)) {
+                    continue;
+                }
+            }
+            if (count > 0) json.append(",");
             json.append("{")
                 .append("\"id\":").append(p.getId()).append(",")
                 .append("\"name\":\"").append(p.getName().replace("\"", "\\\"")).append("\",")
@@ -30,9 +37,11 @@ public class ProductServlet extends HttpServlet {
                 .append("\"description\":\"").append(p.getDescription().replace("\"", "\\\"")).append("\",")
                 .append("\"imageUrl\":\"").append(p.getImageUrl()).append("\",")
                 .append("\"rating\":").append(p.getRating()).append(",")
-                .append("\"category\":\"").append(p.getCategory()).append("\"")
+                .append("\"category\":\"").append(p.getCategory()).append("\",")
+                .append("\"stock\":").append(p.getStock()).append(",")
+                .append("\"unit\":\"").append(p.getUnit()).append("\"")
                 .append("}");
-            if (i < products.size() - 1) json.append(",");
+            count++;
         }
         json.append("]");
         

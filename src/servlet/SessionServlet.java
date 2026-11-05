@@ -17,17 +17,26 @@ public class SessionServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
-        
+
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("user") != null) {
             User sessionUser = (User) session.getAttribute("user");
             User dbUser = UserDatabase.getUser(sessionUser.getUsername());
-            
+            if (dbUser == null) {
+                out.print("{\"loggedIn\": false}");
+                out.flush();
+                return;
+            }
+
             StringBuilder sb = new StringBuilder();
-            sb.append("{\"loggedIn\": true, \"username\": \"").append(dbUser.getUsername()).append("\", \"orders\": [");
+            sb.append("{\"loggedIn\": true,");
+            sb.append("\"username\": \"").append(esc(dbUser.getUsername())).append("\",");
+            sb.append("\"role\": \"").append(esc(dbUser.getRole())).append("\",");
+            sb.append("\"email\": \"").append(esc(dbUser.getEmail())).append("\",");
+            sb.append("\"orders\": [");
             List<String> orders = dbUser.getOrderHistory();
             for (int i = 0; i < orders.size(); i++) {
-                sb.append("\"").append(orders.get(i).replace("\"", "\\\"")).append("\"");
+                sb.append("\"").append(esc(orders.get(i))).append("\"");
                 if (i < orders.size() - 1) sb.append(",");
             }
             sb.append("]}");
@@ -36,5 +45,10 @@ public class SessionServlet extends HttpServlet {
             out.print("{\"loggedIn\": false}");
         }
         out.flush();
+    }
+
+    private String esc(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 }

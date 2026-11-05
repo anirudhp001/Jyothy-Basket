@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create a Jyothy Basket account to start shopping and track your orders.">
+    <title>Register | Jyothy Basket</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/main.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Jyothy Basket</h1>
+        <nav id="nav-links" aria-label="Main navigation"></nav>
+    </header>
+    <main>
+        <div class="auth-form">
+            <h2 style="margin-top: 0; font-size: 1.75rem;">Create Account</h2>
+            <p style="color: var(--text-secondary); text-align: center; margin-bottom: var(--space-lg); font-size: 0.9rem;">Join Jyothy Basket for fast grocery delivery</p>
+            <div id="msg" role="alert" aria-live="polite"></div>
+            
+            <form action="RegisterServlet" method="POST">
+                <label for="reg-username">Username <span style="color:#ef4444;">*</span></label>
+                <input type="text" id="reg-username" name="username" placeholder="Choose a username" required autocomplete="username">
+
+                <label for="reg-email">Email Address</label>
+                <input type="email" id="reg-email" name="email" placeholder="e.g. you@example.com" autocomplete="email">
+
+                <label for="reg-phone">Phone Number</label>
+                <input type="tel" id="reg-phone" name="phone" placeholder="e.g. +91 98450 12345" autocomplete="tel">
+                
+                <label for="reg-password">Password <span style="color:#ef4444;">*</span></label>
+                <input type="password" id="reg-password" name="password" placeholder="Choose a secure password" required autocomplete="new-password">
+                
+                <button type="submit" class="btn" style="width: 100%;"><span>Create Account</span></button>
+            </form>
+            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+                Already have an account? <a href="login.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Sign in here</a>
+            </p>
+        </div>
+    </main>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const msgDiv = document.getElementById('msg');
+        if (urlParams.get('error') === 'exists') {
+            msgDiv.innerHTML = '<div class="error-msg">Username already exists. Please choose another.</div>';
+        } else if (urlParams.get('error') === 'invalid') {
+            msgDiv.innerHTML = '<div class="error-msg">Please provide valid registration details.</div>';
+        }
+    </script>
+</body>
+</html>

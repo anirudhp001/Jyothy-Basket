@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in to your Jyothy Basket account to access your cart, orders, and portfolio.">
+    <title>Login | Jyothy Basket</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/main.js"></script>
+    <style>
+        .demo-accounts { margin-top: 1.5rem; padding: 1rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.85rem; }
+        .demo-accounts p { margin: 0 0 0.5rem; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+        .demo-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .demo-chip { background: var(--bg-elevated); border: 1px solid var(--border-color); color: var(--text-primary);
+            padding: 0.4rem 0.8rem; border-radius: var(--radius-sm); font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
+        .demo-chip:hover { border-color: var(--accent); color: var(--accent); }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Jyothy Basket</h1>
+        <nav id="nav-links" aria-label="Main navigation"></nav>
+    </header>
+    <main>
+        <div class="auth-form">
+            <h2 style="margin-top: 0; font-size: 1.75rem;">Welcome Back</h2>
+            <p style="color: var(--text-secondary); text-align: center; margin-bottom: var(--space-lg); font-size: 0.9rem;">Sign in to continue shopping or manage orders</p>
+            <div id="msg" role="alert" aria-live="polite"></div>
+            
+            <form action="LoginServlet" method="POST">
+                <label for="login-username">Username</label>
+                <input type="text" id="login-username" name="username" placeholder="Enter username" required autocomplete="username">
+                
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" name="password" placeholder="Enter password" required autocomplete="current-password">
+                
+                <button type="submit" class="btn" style="width: 100%;"><span>Sign In</span></button>
+            </form>
+
+            <div class="demo-accounts">
+                <p>⚡ Quick Auto-Fill for Testing:</p>
+                <div class="demo-chips">
+                    <button type="button" class="demo-chip" onclick="fillCreds('admin', 'admin123')">👑 Admin (admin / admin123)</button>
+                    <button type="button" class="demo-chip" onclick="fillCreds('anirudh', 'ani123')">👤 Customer (anirudh / ani123)</button>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+                Don't have an account? <a href="register.html" style="color: var(--accent); text-decoration: none; font-weight: 600;">Register here</a>
+            </p>
+        </div>
+    </main>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const msgDiv = document.getElementById('msg');
+        if (urlParams.get('error') === 'true') {
+            msgDiv.innerHTML = '<div class="error-msg">Invalid username or password. Please try again.</div>';
+        } else if (urlParams.get('success') === 'registered') {
+            msgDiv.innerHTML = '<div class="success-msg">Registration successful! Please sign in.</div>';
+        }
+
+        function fillCreds(u, p) {
+            document.getElementById('login-username').value = u;
+            document.getElementById('login-password').value = p;
+        }
+    </script>
+</body>
+</html>

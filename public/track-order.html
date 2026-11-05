@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order | Jyothy Basket</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/main.js"></script>
+    <style>
+        .track-container { max-width: 760px; margin: 3rem auto; padding: 0 2rem; }
+        .track-header { text-align: center; margin-bottom: 2.5rem; }
+        .track-header h2 { font-size: 2.2rem; letter-spacing: -1px; margin-bottom: 0.5rem; }
+        .track-header p { color: var(--text-secondary); }
+
+        .search-row { display: flex; gap: 1rem; margin-bottom: 2.5rem; }
+        .search-row input { flex: 1; background: var(--bg-elevated); border: 1px solid var(--border-color);
+            color: var(--text-primary); padding: 1rem 1.5rem; border-radius: var(--radius-md);
+            font-size: 1rem; font-family: var(--font-body); outline: none; }
+        .search-row input:focus { border-color: var(--accent); }
+
+        .order-info-card { background: var(--bg-surface); border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); padding: 2rem; margin-bottom: 1.5rem; }
+        .order-id-badge { display: inline-block; background: var(--accent); color: #000;
+            font-weight: 700; font-family: var(--font-heading); padding: 0.3rem 1rem;
+            border-radius: var(--radius-sm); font-size: 0.95rem; letter-spacing: 1px; }
+        .order-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; }
+        .order-meta p { margin: 0; font-size: 0.95rem; }
+        .order-meta .label { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem; }
+
+        /* Delivery Timeline */
+        .timeline { display: flex; justify-content: space-between; align-items: flex-start;
+            position: relative; margin: 2rem 0; padding: 0 1rem; }
+        .timeline::before { content: ''; position: absolute; top: 28px; left: 2rem; right: 2rem;
+            height: 2px; background: var(--border-color); z-index: 0; }
+        .timeline-progress { position: absolute; top: 28px; left: 2rem; height: 2px;
+            background: var(--accent); z-index: 1; transition: width 0.8s cubic-bezier(0.16,1,0.3,1); }
+
+        .timeline-step { display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+            z-index: 2; flex: 1; }
+        .step-icon { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--border-color);
+            background: var(--bg-primary); display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; transition: all 0.5s cubic-bezier(0.16,1,0.3,1); }
+        .timeline-step.active .step-icon { border-color: var(--accent); background: var(--accent);
+            box-shadow: 0 0 20px rgba(229,255,0,0.4); }
+        .timeline-step.done .step-icon { border-color: var(--accent); background: var(--accent); }
+        .step-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-muted); text-align: center; max-width: 85px; }
+        .timeline-step.active .step-label, .timeline-step.done .step-label { color: var(--text-primary); font-weight: 600; }
+
+        .status-pill { display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.35rem 1rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px; }
+        .status-placed { background: rgba(229,255,0,0.1); color: var(--accent); border: 1px solid rgba(229,255,0,0.3); }
+        .status-processing { background: rgba(59,130,246,0.1); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+        .status-outfordelivery { background: rgba(251,146,60,0.1); color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
+        .status-delivered { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+        .status-cancelled { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 0.9rem; }
+        .items-table th { text-align: left; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 1px; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border-color); }
+        .items-table td { padding: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .total-row td { font-weight: 700; color: var(--accent); padding-top: 1rem; font-size: 1.05rem; }
+
+        .cancelled-banner { background: rgba(239,68,68,0.1); border: 1px solid #ef4444; border-radius: var(--radius-md);
+            padding: 1.5rem; text-align: center; color: #f87171; margin: 1.5rem 0; }
+        .error-state, .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-secondary); }
+        .empty-state .icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.3; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Jyothy Basket</h1>
+        <nav id="nav-links"></nav>
+    </header>
+
+    <main>
+        <div class="track-container">
+            <div class="track-header">
+                <h2>Real-Time Delivery Tracker</h2>
+                <p>Track your grocery basket from packing to doorstep delivery</p>
+            </div>
+
+            <div class="search-row">
+                <input type="text" id="order-id-input" placeholder="Enter Order ID (e.g. ORD-1001)" value="" />
+                <button class="btn" onclick="trackOrder()"><span>Track</span></button>
+            </div>
+
+            <div id="track-result">
+                <div class="empty-state">
+                    <div class="icon">📦</div>
+                    <p>Enter your Order ID above or click track from your confirmation receipt</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const urlOrderId = params.get('orderId');
+        if (urlOrderId) {
+            document.getElementById('order-id-input').value = urlOrderId;
+            trackOrder();
+        }
+
+        function trackOrder() {
+            const orderId = document.getElementById('order-id-input').value.trim().toUpperCase();
+            if (!orderId) return;
+            const result = document.getElementById('track-result');
+            result.innerHTML = '<div class="empty-state"><div class="icon" style="font-size:2rem;opacity:0.5">⏳</div><p>Querying delivery network...</p></div>';
+
+            fetch('OrderServlet?orderId=' + encodeURIComponent(orderId))
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        result.innerHTML = `<div class="error-state">
+                            <div style="font-size:3rem;margin-bottom:1rem;">❌</div>
+                            <h3 style="color:var(--text-primary);margin:0 0 0.5rem;">Order Not Found</h3>
+                            <p>${data.error}. Please double check the Order ID.</p>
+                        </div>`;
+                        return;
+                    }
+                    result.innerHTML = renderOrder(data);
+                })
+                .catch(() => {
+                    result.innerHTML = '<div class="error-state"><p style="color:#f87171;">Failed to connect to tracking server.</p></div>';
+                });
+        }
+
+        function statusClass(status) {
+            const map = { 'Order Placed': 'placed', 'Processing': 'processing', 'Out for Delivery': 'outfordelivery', 'Delivered': 'delivered', 'Cancelled': 'cancelled' };
+            return 'status-' + (map[status] || 'placed');
+        }
+
+        function renderOrder(o) {
+            const isCancelled = o.status === 'Cancelled';
+            const stages = [
+                { label: 'Order Placed', icon: '📋' },
+                { label: 'Processing', icon: '⚙️' },
+                { label: 'Out for Delivery', icon: '🚚' },
+                { label: 'Delivered', icon: '✅' }
+            ];
+            const stage = o.stageIndex;
+            const pct = stage === 1 ? 0 : ((stage - 1) / (stages.length - 1)) * 100;
+
+            let timelineSection = '';
+            if (isCancelled) {
+                timelineSection = `<div class="cancelled-banner">
+                    <h3 style="margin:0 0 0.5rem;">Order Cancelled</h3>
+                    <p style="margin:0; font-size:0.9rem;">This order has been cancelled. Any deducted inventory has been restored.</p>
+                </div>`;
+            } else {
+                let timelineHtml = `<div class="timeline"><div class="timeline-progress" id="tp" style="width:0%"></div>`;
+                stages.forEach((s, i) => {
+                    const idx = i + 1;
+                    const cls = idx < stage ? 'done' : (idx === stage ? 'active' : '');
+                    timelineHtml += `<div class="timeline-step ${cls}">
+                        <div class="step-icon">${s.icon}</div>
+                        <div class="step-label">${s.label}</div>
+                    </div>`;
+                });
+                timelineHtml += '</div>';
+
+                timelineSection = `
+                    <div class="order-info-card">
+                        <h3 style="margin-top:0; font-size:1rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-secondary);">Delivery Timeline</h3>
+                        ${timelineHtml}
+                    </div>`;
+            }
+
+            let itemsHtml = `<table class="items-table"><thead><tr>
+                <th>Item</th><th>Unit</th><th>Qty</th><th>Price</th><th>Subtotal</th>
+            </tr></thead><tbody>`;
+            o.items.forEach(item => {
+                itemsHtml += `<tr>
+                    <td style="font-weight:600;">${item.productName}</td>
+                    <td style="color:var(--text-secondary);">${item.unit}</td>
+                    <td>${item.quantity}</td>
+                    <td>₹${item.price.toFixed(2)}</td>
+                    <td style="font-weight:600;">₹${item.subtotal.toFixed(2)}</td>
+                </tr>`;
+            });
+            itemsHtml += `<tr class="total-row"><td colspan="4" style="text-align:right;">Grand Total:</td><td>₹${o.totalAmount.toFixed(2)}</td></tr>`;
+            itemsHtml += '</tbody></table>';
+
+            const html = `
+                <div class="order-info-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                        <span class="order-id-badge">${o.orderId}</span>
+                        <span class="status-pill ${statusClass(o.status)}">${o.status}</span>
+                    </div>
+                    <div class="order-meta">
+                        <div><div class="label">Recipient Name</div><p>${o.customerName}</p></div>
+                        <div><div class="label">Contact Phone</div><p>${o.phone || 'N/A'}</p></div>
+                        <div><div class="label">Date Placed</div><p>${o.orderDate}</p></div>
+                        <div><div class="label">Expected By</div><p>${o.estimatedDelivery}</p></div>
+                        <div style="grid-column:1/-1"><div class="label">Delivery Address</div><p>${o.deliveryAddress}</p></div>
+                    </div>
+                </div>
+
+                ${timelineSection}
+
+                <div class="order-info-card">
+                    <h3 style="margin-top:0; font-size:1rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-secondary);">Basket Items</h3>
+                    ${itemsHtml}
+                </div>`;
+
+            if (!isCancelled) {
+                setTimeout(() => {
+                    const tp = document.getElementById('tp');
+                    if (tp) tp.style.width = pct + '%';
+                }, 100);
+            }
+
+            return html;
+        }
+    </script>
+</body>
+</html>

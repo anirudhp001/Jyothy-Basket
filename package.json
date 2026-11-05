@@ -1,0 +1,16 @@
+{
+  "name": "jyothy-basket",
+  "version": "1.0.0",
+  "description": "Jyothy Basket - Grocery E-Commerce Platform",
+  "main": "api/ProductServlet.js",
+  "scripts": {
+    "start": "node -e \"console.log('Jyothy Basket live')\""
+  },
+  "keywords": [
+    "grocery",
+    "ecommerce",
+    "sepm"
+  ],
+  "author": "Anirudh",
+  "license": "ISC"
+}

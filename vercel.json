@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/ProductServlet", "destination": "/api/ProductServlet" },
+    { "source": "/CartServlet", "destination": "/api/CartServlet" },
+    { "source": "/CheckoutServlet", "destination": "/api/CheckoutServlet" },
+    { "source": "/OrderServlet", "destination": "/api/OrderServlet" },
+    { "source": "/AdminServlet", "destination": "/api/AdminServlet" },
+    { "source": "/SessionServlet", "destination": "/api/SessionServlet" },
+    { "source": "/LoginServlet", "destination": "/api/LoginServlet" },
+    { "source": "/RegisterServlet", "destination": "/api/RegisterServlet" },
+    { "source": "/LogoutServlet", "destination": "/api/LogoutServlet" },
+    { "source": "/", "destination": "/index.html" }
+  ]
+}

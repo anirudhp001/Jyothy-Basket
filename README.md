@@ -1,33 +1,50 @@
-# Simple E-Commerce Website
+# Jyothy Basket — Grocery E-Commerce Platform
 
-An intermediate-level conceptual e-commerce web application built strictly with Core Java, Servlets, HTML, and CSS. This project focuses entirely on backend data management using core Object-Oriented Programming (OOP) concepts, Collections, and HTTP Session handling, completely substituting large frameworks with vanilla technologies. JavaScript is used minimally (only using `fetch`) strictly to request Java Servlet backend data directly into `.html` pages (preventing the need for JSP).
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fanirudhp001%2FJyothy-Basket)
 
-## Features Implemented
-- **Home/Products Page**: Dynamically renders predefined products via `ProductServlet`.
-- **Shopping Cart**: Fully functional add/remove logic, managed entirely using `HttpSession` state in `CartServlet`.
-- **Checkout Processing**: Resets active session Cart and dynamically prints a confirmation via `CheckoutServlet`.
-- **Basic Login Mechanism**: Dummy User session stored in `LoginServlet` for OOP demonstration.
+A full-featured grocery e-commerce web platform modeled after quick-commerce leaders like **BigBasket**. Built for Software Engineering & Project Management (SEPM), this system delivers an end-to-end grocery shopping, order fulfillment, real-time delivery tracking, and operations management experience.
 
-## Technologies Used
-- **Backend Model**: Core Java (Classes, Encapsulation, ArrayList Collections).
-- **Backend Controller**: Java Servlets (`HttpServlet`, `doGet`, `doPost`, `HttpSession`).
-- **Frontend View**: HTML5 & Vanilla CSS (Flexbox/Grid layout used, completely responsive with NO CSS frameworks).
+---
 
-## Step-By-Step: Running in VS Code Using Apache Tomcat
-1. **Prerequisites**: Ensure you have **Java JDK 11+**, **VS Code**, and the Extension **"Community Server Connectors"** by Red Hat or **"Tomcat for Java"** installed in VS Code.
-2. **Setup Tomcat**: Download [Apache Tomcat 9](https://tomcat.apache.org/) (Tomcat 9 is necessary as the models use `javax.servlet`. Tomcat 10+ requires `jakarta.servlet`) and extract it.
-3. **Open Project**: Open the `SimpleEcommerce` folder directly in VS Code.
-4. **Compile Java Files**:
-   - For proper deployment, Java Servlets must be compiled into `webapp/WEB-INF/classes`. You need the Servlet API jar located in your Tomcat's `lib/servlet-api.jar`.
-   - Compile via terminal (from the project root):
-     ```cmd
-     mkdir webapp\WEB-INF\classes
-     javac -cp "PATH_TO_TOMCAT\lib\servlet-api.jar" -d webapp\WEB-INF\classes src\model\*.java src\servlet\*.java
-     ```
-   *(Note: Adjust `PATH_TO_TOMCAT` to where you saved your Apache Tomcat folder. Alternatively, you can use Eclipse/IntelliJ or Maven which automate compilation).*
-5. **Run the Server**:
-   - Go to your VS Code "Servers" panel.
-   - Click "Add New Server" -> Select the extracted Tomcat 9 folder.
-   - Right-click the server -> "Start".
-   - Right-click the server -> "Add Deployment" -> Select the `webapp` folder in your workspace.
-   - Once deployed, open a browser and navigate to: `http://localhost:8080/webapp/index.html` (or whatever mapping the VS Code extension gave it). Explore the cart, checkout, and product mapping logic!
+## 🚀 Live 1-Click Deployment on Vercel
+
+You can deploy this project instantly to Vercel with zero server setup:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fanirudhp001%2FJyothy-Basket)
+
+1. Click the **Deploy with Vercel** button above (or open [vercel.com/new](https://vercel.com/new)).
+2. Connect your GitHub account and select `anirudhp001/Jyothy-Basket`.
+3. Click **Deploy**. Vercel will automatically build the static assets and serverless API functions to generate a live public URL (e.g. `https://jyothy-basket.vercel.app`).
+
+---
+
+## ✨ Features Implemented
+
+- 🥦 **Grocery Catalog & Category Filters**: 21 authentic grocery items across 4 categories (*Fresh Produce*, *Dairy & Bakery*, *Pantry & Staples*, *Beverages & Snacks*) with metric units (kg, L, pack, dozen).
+- 🛒 **Interactive Shopping Cart**: Quantity adjustment (`+` / `−`), pre-stock limits, and instant subtotal re-calculation via non-blocking AJAX toast notifications.
+- 💳 **Checkout with Order Preview**: Live itemized receipt and total calculation, capturing customer delivery address and phone number.
+- 🚚 **Real-Time 4-Stage Delivery Tracking**: Visual delivery timeline (*Order Placed ➔ Processing ➔ Out for Delivery ➔ Delivered*) with order search and direct receipt links (`track-order.html?orderId=ORD-1001`).
+- 📦 **Inventory Management & Restock**: Stock auto-decrements upon purchase; staff can restock items with 1 click.
+- ⚙️ **Staff & Admin Management Portal**: Dedicated dashboard (`admin.html`) to monitor revenue, live in-progress orders, stock levels, advance order statuses, and view customer accounts.
+- 👤 **Customer Account Management**: Sign in, register, and review past order histories.
+
+---
+
+## 🔑 Demo Credentials
+
+| Role | Username | Password | Access Privileges |
+| :--- | :--- | :--- | :--- |
+| **Customer** | `anirudh` | `ani123` | Shopping, cart, checkout, order tracking, order history |
+| **Admin / Staff** | `admin` | `admin123` | Staff portal, order delivery updates, inventory restocking, customer list |
+
+---
+
+## 💻 Local Setup (Apache Tomcat)
+
+1. **Prerequisites**: JDK 11+, Apache Tomcat 9.
+2. **Compile Java Servlets**:
+   ```powershell
+   javac -cp "lib/javax.servlet-api-4.0.1.jar;src" -d "webapp/WEB-INF/classes" src/model/*.java src/servlet/*.java
+   ```
+3. **Run in Tomcat**:
+   Set `docBase` to the `webapp` folder and launch Tomcat. Access at `http://localhost:8080/SimpleEcommerce/`.
